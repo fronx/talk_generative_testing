@@ -6,26 +6,272 @@
 
 ---
 
-# i don’t enjoy<br>talking about things<br>i’ve fully figured out
+# checking data model invariants
 
 ---
 
-# i *have to* talk<br>about stuff<br> i *haven't* quite <br>figured out yet
+# write less code
 
 ---
 
-# i will *totally* read everything that's written on these slides
+# write less *test* code
+
+---
+
+# THESIS
+# express<br>what's *essential*<br>directly
 
 ---
 
 # outline
 
-* [2 min] limits of classical unit testing
-* [8 min] basics of random testing
-* [5 min] how does it work?
-* [5 min] how to test code with impurities?
-* [2 min] bonus: model-based testing
-* [3 min] conclusion
+* [2 min] expected == actual
+* [2 min] properties
+* [5 min] generating tests
+
+// * [5 min] how to test code with impurities?
+// * [2 min] bonus: model-based testing
+// * [3 min] conclusion
+
+---
+
+# expected == actual
+
+```js
+// concatenate a list to itself n times
+function concatN(n, list) { … }
+```
+
+---
+
+# expected == actual
+
+```js
+// concatenate a list to itself n times
+function concatN(n, list) { … }
+
+assertEqual(concatN(1, [1,2,3]),
+            [1,2,3]);
+```
+
+---
+
+# expected == actual
+
+```js
+// concatenate a list to itself n times
+function concatN(n, list) { … }
+
+assertEqual(concatN(1, [1,2,3]),
+            [1,2,3]);
+
+assertEqual(concatN(2, [1,2,3]),
+            [1,2,3,1,2,3]);
+```
+
+---
+
+# expected == actual
+
+```js
+// concatenate a list to itself n times
+function concatN(n, list) { … }
+
+assertEqual(concatN(1, [1,2,3]),
+            [1,2,3]);       // why is that correct?
+
+assertEqual(concatN(2, [1,2,3]),
+            [1,2,3,1,2,3]); // why is that correct?
+```
+
+---
+
+# expected == actual
+
+```js
+ 
+ 
+ 
+assertEqual(concatN(1, [1,2,3]),
+            [1,2,3]);       // why is that correct?
+```
+
+---
+
+# property(actual)
+
+```js
+// output length == n times input length
+
+
+assertEqual(concatN(1, [1,2,3]),
+            [1,2,3]);
+```
+
+---
+
+# property(actual)
+
+```js
+// output length == n times input length
+// items appear in their original order
+
+assertEqual(concatN(1, [1,2,3]),
+            [1,2,3]);
+```
+
+---
+
+# property(actual)
+
+```js
+// output length == n times input length
+
+var list = [1,2,3];
+assert(concatN(1, list).length ===
+       1 * list.length);
+```
+
+---
+
+# property(actual)
+
+```js
+// items appear in their original order
+
+  assert(concatN(1, list)[m % list.length] ===
+         list[m % list.length]);
+
+```
+
+---
+
+# property(actual)
+
+```js
+// items appear in their original order
+[2,5,10,12].forEach(function(m) {
+  assert(concatN(1, list)[m % list.length] ===
+         list[m % list.length]);
+});
+```
+
+---
+
+# property(actual)
+
+```js
+ 
+ 
+ 
+assertEqual(concatN(2, [1,2,3]),
+            [1,2,3,1,2,3]); // why is that correct?
+```
+---
+
+# property(actual)
+
+```js
+// output length == n times input length
+// items appear in their original order 
+ 
+assertEqual(concatN(2, [1,2,3]),
+            [1,2,3,1,2,3]);
+```
+
+---
+
+# property(actual)
+
+```js
+// output length == n times input length
+var list = [1,2,3];
+
+assert(concatN(1, list).length ===
+       1 * list.length);
+
+assert(concatN(2, list).length ===
+       2 * list.length);
+```
+
+---
+
+# property(actual)
+
+```js
+// items appear in their original order
+var list = [1,2,3];
+// for (var m...)
+assert(concatN(1, list)[m % list.length] ===
+       list[m % list.length]);
+// for (var m...)
+assert(concatN(2, list)[m % list.length] ===
+       list[m % list.length]);
+
+```
+
+---
+
+# we are testing<br>the *same thing*
+
+---
+
+# this calls for<br>*ABSTRACTION*
+
+---
+
+# abstraction
+
+```js
+ 
+         concatN(n, list).length ===
+         n * list.length;
+
+
+ 
+         concatN(n, list)[m % list.length] ===
+         list[m % list.length]);
+
+
+```
+
+---
+
+# abstraction
+
+```js
+function (list, n) {
+  return concatN(n, list).length ===
+         n * list.length;
+}
+
+function(list, n, m) {
+  return concatN(n, list)[m % list.length] ===
+         list[m % list.length]);
+}
+
+```
+
+---
+
+# abstraction
+
+```js
+forAll(arbList, arbInt, function(list, n) {
+  return concatN(n, list).length ===
+         n * list.length;
+});
+
+forAll(arbList, arbInt, arbInt, function(list, n, m) {
+  return concatN(n, list)[m % list.length] ===
+         list[m % list.length]);
+});
+
+```
+
+---
+
+# what's the use of it?
 
 ---
 
@@ -39,6 +285,14 @@ to propertyOf(generated)
 (compare to functional abstraction?)
 "but isn't that the same as writing the implementation?"
 no. that is, it can be, but it doesn't have to be.
+
+---
+
+requirements change
+how do our expectations keep up with that?
+expected == actual
+
+properties allow you to have composable expectations!
 
 ---
 
@@ -90,6 +344,12 @@ no. that is, it can be, but it doesn't have to be.
 // translate it into javascript
 // now everything is clear
 // maybe
+
+---
+
+writing generators takes time and effort
+but it's a good investment!
+you can use them in other tests
 
 ---
 

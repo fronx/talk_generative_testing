@@ -4,29 +4,29 @@ function assertArraysEqual(actual, expected) {
   assert.equal(JSON.stringify(actual), JSON.stringify(expected));
 }
 
-function repeat(n, list) {
+function concatN(n, list) {
   var result = [];
   while (n-- > 0) result = result.concat(list);
   return result;
 }
 
 assertArraysEqual(
-  repeat(1, [1,2,3]),
+  concatN(1, [1,2,3]),
   [1,2,3]
 );
 
 assertArraysEqual(
-  repeat(2, [1,2,3]),
+  concatN(2, [1,2,3]),
   [1,2,3,1,2,3]
 );
 
 assertArraysEqual(
-  repeat(0, [1,2,3]),
+  concatN(0, [1,2,3]),
   []
 );
 
 assertArraysEqual(
-  repeat(-100, [1,2,3]),
+  concatN(-100, [1,2,3]),
   []
 );
 
@@ -49,11 +49,11 @@ assertArraysEqual(
 //    what if we removed all those concrete values
 //    and replaced them with variables?
 //
-//    repeat(n, list) --> ???
+//    concatN(n, list) --> ???
 //
 //    what do we know about the result?
 //    its length:
-//       repeat(n, list).length === n < 0 ? 0 : n * list.length
+//       concatN(n, list).length === n < 0 ? 0 : n * list.length
 //    the position of values:
-//       repeat(n, list)[m % list.length] === list[m % list.length]
+//       concatN(n, list)[m % list.length] === list[m % list.length]
 //
