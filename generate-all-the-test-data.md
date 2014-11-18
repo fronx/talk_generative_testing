@@ -6,7 +6,17 @@
 
 ---
 
-# checking data model invariants
+# low-level data layer
+# --> *mistakes* <--
+# high-level domain invariants
+
+---
+
+# a lot of tests
+
+---
+
+# but test code is code
 
 ---
 
@@ -14,20 +24,15 @@
 
 ---
 
-# write less *test* code
-
----
-
-# THESIS
-# express<br>what's *essential*<br>directly
+# write *less test code*
 
 ---
 
 # outline
 
-* [2 min] expected == actual
-* [2 min] properties
-* [5 min] generating tests
+* [ 4 min] expected == actual
+* [ 4 min] properties
+* [10 min] generators
 
 // * [5 min] how to test code with impurities?
 // * [2 min] bonus: model-based testing
@@ -98,7 +103,7 @@ assertEqual(concatN(1, [1,2,3]),
 
 ---
 
-# property(actual)
+# properties
 
 ```js
 // output length == n times input length
@@ -110,7 +115,7 @@ assertEqual(concatN(1, [1,2,3]),
 
 ---
 
-# property(actual)
+# properties
 
 ```js
 // output length == n times input length
@@ -122,7 +127,7 @@ assertEqual(concatN(1, [1,2,3]),
 
 ---
 
-# property(actual)
+# properties
 
 ```js
 // output length == n times input length
@@ -134,7 +139,29 @@ assert(concatN(1, list).length ===
 
 ---
 
-# property(actual)
+# properties
+
+```js
+// items appear in their original order
+```
+
+---
+
+# properties
+
+```js
+// items appear in their original order
+// or: every nth item is the same
+
+// input:  a b c
+//           *
+// output: a b c a b c a b c . . .
+//           * . . * . . * . . * .
+```
+
+---
+
+# properties
 
 ```js
 // items appear in their original order
@@ -142,11 +169,15 @@ assert(concatN(1, list).length ===
   assert(concatN(1, list)[m % list.length] ===
          list[m % list.length]);
 
+// input:  a b c
+//           *
+// output: a b c a b c a b c . . .
+//           * . . * . . * . . * .
 ```
 
 ---
 
-# property(actual)
+# properties
 
 ```js
 // items appear in their original order
@@ -158,7 +189,7 @@ assert(concatN(1, list).length ===
 
 ---
 
-# property(actual)
+# properties
 
 ```js
  
@@ -169,7 +200,7 @@ assertEqual(concatN(2, [1,2,3]),
 ```
 ---
 
-# property(actual)
+# properties
 
 ```js
 // output length == n times input length
@@ -181,7 +212,7 @@ assertEqual(concatN(2, [1,2,3]),
 
 ---
 
-# property(actual)
+# properties
 
 ```js
 // output length == n times input length
@@ -196,7 +227,7 @@ assert(concatN(2, list).length ===
 
 ---
 
-# property(actual)
+# properties
 
 ```js
 // items appear in their original order
@@ -254,6 +285,31 @@ function(list, n, m) {
 
 ---
 
+# okay cool, but what does that have to do with *generating* test cases?
+
+---
+
+# look!
+
+---
+
+# abstraction
+
+```js
+function (list, n) {
+  return concatN(n, list).length ===
+         n * list.length;
+}
+
+function(list, n, m) {
+  return concatN(n, list)[m % list.length] ===
+         list[m % list.length]);
+}
+
+```
+
+---
+
 # abstraction
 
 ```js
@@ -271,28 +327,27 @@ forAll(arbList, arbInt, arbInt, function(list, n, m) {
 
 ---
 
-# what's the use of it?
+# *beauty, eh?*
 
 ---
 
-basic idea: abstract test cases
-i.e. reduce them to the essential
+# observation 1
 
-from expected == actual
-to propertyOf(expected)
-to propertyOf(generated)
+# testing properties is *not* the same as rewriting the implementation
 
-(compare to functional abstraction?)
-"but isn't that the same as writing the implementation?"
-no. that is, it can be, but it doesn't have to be.
+* though it can be hard to see how
 
 ---
 
-requirements change
-how do our expectations keep up with that?
-expected == actual
+# observation 2
 
-properties allow you to have composable expectations!
+# properties can be completely *independent*
+
+* avoid accidental overlapping
+
+---
+
+# let's make our own generators!
 
 ---
 
