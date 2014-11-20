@@ -6,9 +6,8 @@
 
 ---
 
-# low-level data layer
-# --> *mistakes* <--
-# high-level domain invariants
+# layered system
+# domain invariants
 
 ---
 
@@ -30,13 +29,19 @@
 
 # outline
 
-* [ 4 min] expected == actual
-* [ 4 min] properties
-* [10 min] generators
+1 | from expected == actual to properties
+2 | generators
+3 | shrinking
+4 | cool stuff you can do
+5 | trade-offs
 
-// * [5 min] how to test code with impurities?
-// * [2 min] bonus: model-based testing
-// * [3 min] conclusion
+---
+
+# disclaimer
+
+---
+
+# 1<br>from<br>expected == actual<br>to properties
 
 ---
 
@@ -107,18 +112,6 @@ assertEqual(concatN(1, [1,2,3]),
 
 ```js
 // output length == n times input length
-
-
-assertEqual(concatN(1, [1,2,3]),
-            [1,2,3]);
-```
-
----
-
-# properties
-
-```js
-// output length == n times input length
 // items appear in their original order
 
 assertEqual(concatN(1, [1,2,3]),
@@ -132,9 +125,8 @@ assertEqual(concatN(1, [1,2,3]),
 ```js
 // output length == n times input length
 
-var list = [1,2,3];
-assert(concatN(1, list).length ===
-       1 * list.length);
+assert(concatN(1, someList).length ===
+       1 * someList.length);
 ```
 
 ---
@@ -151,12 +143,14 @@ assert(concatN(1, list).length ===
 
 ```js
 // items appear in their original order
-// or: every nth item is the same
+// or: every nth item is the same in input/output
 
 // input:  a b c
 //           *
-// output: a b c a b c a b c . . .
-//           * . . * . . * . . * .
+//         0 1 2
+// output: a b c a b c a b c
+//           * . . * . . * .
+//         0 1 2 0 1 2 0 1 2
 ```
 
 ---
@@ -165,14 +159,10 @@ assert(concatN(1, list).length ===
 
 ```js
 // items appear in their original order
+// or: every nth item is the same in input/output
 
-  assert(concatN(1, list)[m % list.length] ===
-         list[m % list.length]);
-
-// input:  a b c
-//           *
-// output: a b c a b c a b c . . .
-//           * . . * . . * . . * .
+  assert(concatN(1, list)[someIndex % list.length] ===
+                     list[someIndex % list.length]);
 ```
 
 ---
@@ -181,9 +171,10 @@ assert(concatN(1, list).length ===
 
 ```js
 // items appear in their original order
-[2,5,10,12].forEach(function(m) {
-  assert(concatN(1, list)[m % list.length] ===
-         list[m % list.length]);
+// or: every nth item is the same in input/output
+exampleIndexes.forEach(function(someIndex) {
+  assert(concatN(1, list)[someIndex % list.length] ===
+                     list[someIndex % list.length]);
 });
 ```
 
@@ -216,7 +207,7 @@ assertEqual(concatN(2, [1,2,3]),
 
 ```js
 // output length == n times input length
-var list = [1,2,3];
+var list = ...;
 
 assert(concatN(1, list).length ===
        1 * list.length);
@@ -231,13 +222,13 @@ assert(concatN(2, list).length ===
 
 ```js
 // items appear in their original order
-var list = [1,2,3];
+var list = ...;
 // for (var m...)
 assert(concatN(1, list)[m % list.length] ===
-       list[m % list.length]);
+                   list[m % list.length]);
 // for (var m...)
 assert(concatN(2, list)[m % list.length] ===
-       list[m % list.length]);
+                   list[m % list.length]);
 
 ```
 
@@ -247,7 +238,7 @@ assert(concatN(2, list)[m % list.length] ===
 
 ---
 
-# this calls for<br>*ABSTRACTION*
+# this calls for<br>*abstraction*
 
 ---
 
@@ -255,13 +246,13 @@ assert(concatN(2, list)[m % list.length] ===
 
 ```js
  
-         concatN(n, list).length ===
-         n * list.length;
+  assert(concatN(n, list).length ===
+         n * list.length);
 
 
  
-         concatN(n, list)[m % list.length] ===
-         list[m % list.length]);
+  assert(concatN(n, list)[m % list.length] ===
+                     list[m % list.length]);
 
 
 ```
@@ -272,20 +263,24 @@ assert(concatN(2, list)[m % list.length] ===
 
 ```js
 function (list, n) {
-  return concatN(n, list).length ===
-         n * list.length;
+  assert(concatN(n, list).length ===
+         n * list.length);
 }
 
 function(list, n, m) {
-  return concatN(n, list)[m % list.length] ===
-         list[m % list.length]);
+  assert(concatN(n, list)[m % list.length] ===
+                     list[m % list.length]);
 }
 
 ```
 
 ---
 
-# okay cool, but what does that have to do with *generating* test cases?
+# okay cool, but where does the *data* come from?
+
+---
+
+# 2<br>generators
 
 ---
 
@@ -293,61 +288,317 @@ function(list, n, m) {
 
 ---
 
-# abstraction
+# generators
 
 ```js
 function (list, n) {
-  return concatN(n, list).length ===
-         n * list.length;
+  assert(concatN(n, list).length ===
+         n * list.length);
 }
 
 function(list, n, m) {
-  return concatN(n, list)[m % list.length] ===
-         list[m % list.length]);
+  assert(concatN(n, list)[m % list.length] ===
+                     list[m % list.length]);
 }
 
 ```
 
 ---
 
-# abstraction
+# generators
 
 ```js
 forAll(arbList, arbInt, function(list, n) {
-  return concatN(n, list).length ===
-         n * list.length;
+  assert(concatN(n, list).length ===
+         n * list.length);
 });
 
 forAll(arbList, arbInt, arbInt, function(list, n, m) {
-  return concatN(n, list)[m % list.length] ===
-         list[m % list.length]);
+  assert(concatN(n, list)[m % list.length] ===
+                     list[m % list.length]);
 });
 
 ```
 
 ---
 
-# *beauty, eh?*
+# generators
 
----
-
-# observation 1
-
-# testing properties is *not* the same as rewriting the implementation
-
-* though it can be hard to see how
-
----
-
-# observation 2
-
-# properties can be completely *independent*
-
-* avoid accidental overlapping
+* `arbInt`  
+* `arbList`
 
 ---
 
 # let's make our own generators!
+
+* `arbInt`
+
+```js
+function arbWhole (size) {
+  return Math.floor(Math.random() * size);
+} // --> num between 0 and size
+```
+
+---
+
+# let's make our own generators!
+
+* `arbInt`
+
+```js
+function arbWhole (size) {
+  return Math.floor(Math.random() * size);
+} // --> num between 0 and size
+
+function arbInt (size) {
+  return arbWhole(2 * size) - size;
+} // --> num between -size and size
+```
+
+---
+
+# what's `size` good for?
+
+---
+
+# `size` does *not* determine<br>the size _precisely_
+
+# it merely *allows* more complex test cases
+
+---
+
+# let's make our own generators!
+
+* `arbList`
+
+```js
+function arbList (size) {
+  var i, list = [],
+      listSize = arbWhole(size);
+  // TODO: collect content
+  //       for list
+  //
+  return list;
+}
+```
+---
+
+# let's make our own generators!
+
+* `arbList`
+
+```js
+function arbList (size) {
+  var i, list = [],
+      listSize = arbWhole(size);
+  for (i = 0; i < listSize; i += 1) {
+    list.push(arbInt(size));
+  }
+  return list;
+}
+```
+
+---
+
+# let's make our own generators!
+
+* `arbList`
+
+```js
+function arbList (itemGen, size) {
+  var i, list = [],
+      listSize = arbWhole(size);
+  for (i = 0; i < listSize; i += 1) {
+    list.push(itemGen(size));
+  }
+  return list;
+}
+```
+
+---
+
+# generators
+
+```js
+// usage
+var l1 = arbList(arbInt, 1);
+var l2 = arbList(arbInt, 20);
+
+var i1 = arbInt(1);
+var i2 = arbInt(10);
+
+// different signatures :(
+```
+
+---
+
+# generators
+
+```js
+// desired usage
+
+arbList(arbInt)
+
+arbList(arbList(arbInt))
+
+arbList(arbList(arbList(arbStr)))
+```
+
+---
+
+# ?
+
+---
+
+# we
+
+---
+
+# we need
+
+---
+
+# we need some
+
+---
+
+# we need some<br>*CUR*
+
+---
+
+# we need some<br>*CUR*(*RY*)
+
+---
+
+# we need some<br>*CUR*(*RY*)(*ING*)
+
+---
+
+# we need some<br>*CUR*(*RY*)(*ING*).
+
+---
+
+# we
+
+---
+
+# we need
+
+---
+
+# we need some
+
+---
+
+# we need some<br>*CUR*
+
+---
+
+# we need some<br>*CUR*(*RY*)
+
+---
+
+# we need some<br>*CUR*(*RY*)(*ING*)
+
+---
+
+# we need some<br>*CUR*(*RY*)(*ING*).
+
+---
+
+# ok
+
+---
+
+# generators
+
+```js
+// arbList :: ((Int -> a), Int) -> [a]
+function arbList (itemGen, size) {
+
+    var i, list = [],
+        listSize = arbWhole(size);
+    for (i = 0; i < listSize; i += 1) {
+      list.push(itemGen(size));
+    }
+    return list;
+
+}
+```
+
+---
+
+# generators
+
+```js
+// arbList :: (Int -> a) -> (Int -> [a])
+function arbList (itemGen) {
+  return function gen(size) {
+    var i, list = [],
+        listSize = arbWhole(size);
+    for (i = 0; i < listSize; i += 1) {
+      list.push(itemGen(size));
+    }
+    return list;
+  };
+}
+```
+
+---
+
+# generators
+
+```js
+var url = { protocol: 'http'
+          , domain: xkcd.com
+          , path: /5/
+          , query: ''
+          }
+
+function arbUrl(size) {
+  return { protocol: arbProtocol      // such custom
+         , domain:   arbDomain(size)  // many param
+         , path:     arbPath(size)    // much size
+         , query:    arbQuery(size)   // wow
+         };
+}
+```
+
+---
+
+# 3<br>shrinking
+
+---
+
+# shrinking
+
+```js
+
+```
+
+---
+
+# 4<br>cool stuff you can do
+
+---
+
+# cool stuff you can do
+
+* random user actions
+* idempotence
+* symmetry
+* compare implementations
+
+---
+
+# trade-offs
+
+* investing in generators vs.
+*
+
+---
+
+# questions
 
 ---
 
@@ -367,38 +618,6 @@ forAll(arbList, arbInt, arbInt, function(list, n, m) {
 * idempotence: normalizing a value twice should not change the result
 * something with recursive functions?
 *
-
----
-
-# how does it work?
-
-* let's look at the whole implementation of the original quickcheck: (screenshot)
-* okay cool…
-
----
-
-// i need one good example that i can use accross everything
-// i should write unit tests for it
-// maybe even do it test-driven
-// and then show how there is the assumption that the examples are representative
-// is the sorted list a good example? not really.
-// what could possibly go wrong in the implementation?
-//
-
----
-
-// no matter what, i always want X to be true
-
----
-
-// show an example here
-// use the most mathy notation i can find
-
----
-
-// translate it into javascript
-// now everything is clear
-// maybe
 
 ---
 
