@@ -59,11 +59,11 @@ function arbArray(innerGen) {
 forAll([arbInt, arbArray(arbInt)],
   function (n, list) {
     return concatN(n, list).length ===
-      n * list.length;
+      (n < 0 ? 0 : n * list.length);
   });
 
-forAll([arbInt, arbArray(arbInt), arbInt],
+forAll([arbInt, arbArray(arbInt), arbWhole],
   function (n, list, m) {
-    return concatN(n, list)[m % list.length] ===
-                       list[m % list.length];
+    return n < 1 || concatN(n, list)[m % list.length] ===
+                                list[m % list.length];
   });

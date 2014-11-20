@@ -2,6 +2,10 @@
 
 ---
 
+# hi, i'm fronx.<br>and also @fronx.
+
+---
+
 # why *this* talk,<br />why *me*
 
 ---
@@ -29,15 +33,11 @@
 
 # outline
 
-1 | from expected == actual to properties
-2 | generators
-3 | shrinking
-4 | cool stuff you can do
-5 | trade-offs
-
----
-
-# disclaimer
+`1 |` from `expected == actual` to properties
+`2 |` generators
+`3 |` learn from failures
+`4 |` cool stuff you can do
+`5 |` suitability
 
 ---
 
@@ -284,10 +284,6 @@ function(list, n, m) {
 
 ---
 
-# look!
-
----
-
 # generators
 
 ```js
@@ -309,13 +305,13 @@ function(list, n, m) {
 
 ```js
 forAll(arbList, arbInt, function(list, n) {
-  assert(concatN(n, list).length ===
-         n * list.length);
+  return concatN(n, list).length ===
+         n * list.length;
 });
 
 forAll(arbList, arbInt, arbInt, function(list, n, m) {
-  assert(concatN(n, list)[m % list.length] ===
-                     list[m % list.length]);
+  return concatN(n, list)[m % list.length] ===
+                     list[m % list.length];
 });
 
 ```
@@ -329,7 +325,7 @@ forAll(arbList, arbInt, arbInt, function(list, n, m) {
 
 ---
 
-# let's make our own generators!
+# generators
 
 * `arbInt`
 
@@ -341,7 +337,7 @@ function arbWhole (size) {
 
 ---
 
-# let's make our own generators!
+# generators
 
 * `arbInt`
 
@@ -361,19 +357,63 @@ function arbInt (size) {
 
 ---
 
-# `size` does *not* determine<br>the size _precisely_
+# size: with one value dimension
 
-# it merely *allows* more complex test cases
+````
+ +----------------------> arbInt
+0|*
+ |
+ v size
+````
 
 ---
 
-# let's make our own generators!
+# size: with one value dimension
+
+````
+ +----------------------> arbInt
+0|*
+3|**
+ |
+ v size
+````
+---
+
+# size: with one value dimension
+
+````
+ +----------------------> arbInt
+0|*
+3|**
+5| ** *
+ v size
+````
+
+---
+
+# size: with one value dimension
+
+````
+ +----------------------> arbInt
+0|*
+3|**
+5| ** *
+ |  **    *
+9| *   *
+ |  *   *    *
+ | *             *  *
+ v size
+````
+
+---
+
+# generators
 
 * `arbList`
 
 ```js
 function arbList (size) {
-  var i, list = [],
+  var list = [],
       listSize = arbWhole(size);
   // TODO: collect content
   //       for list
@@ -381,9 +421,79 @@ function arbList (size) {
   return list;
 }
 ```
+
 ---
 
-# let's make our own generators!
+# generators
+
+* `arbList`
+
+```js
+function arbList (size) {
+  var list = [],
+      listSize = arbWhole(size);
+  for (var i=0; i<listSize; i++) {
+    list.push(arbInt(size));
+  }
+  return list;
+}
+```
+
+---
+
+# size: with two value dimensions
+
+````
+ +----------------------> arbInt
+ |*** *  *         *
+ |* ** *  *   *        *
+ |* ** *
+ |  **    *
+ | *   *         *     (size is the limiting radius)
+ |         *
+ | *              *
+ v arbList
+````
+
+---
+
+# failure, shrinking
+
+````
+ +----------------------> arbInt
+ |*** *  *         *
+ |* ** *  *   *        *
+ |* ** *
+ |  **    *
+ | *   *         X <-- failure
+ |         *
+ | *              *
+ v arbList
+````
+
+---
+
+# failure, shrinking
+
+````
+ +----------------------> arbInt
+ |*** *  *         *
+ |* ** *  *   *        *
+ |* ** * Mxxxx <-- minimal example
+ |  **    *   xx
+ | *   *        xX <-- failure
+ |         *
+ | *              *
+ v arbList
+````
+
+---
+
+# shrinking and reducing `size` do *not* achieve the same thing
+
+---
+
+# generators
 
 * `arbList`
 
@@ -400,7 +510,7 @@ function arbList (size) {
 
 ---
 
-# let's make our own generators!
+# generators
 
 * `arbList`
 
@@ -549,40 +659,135 @@ function arbList (itemGen) {
 # generators
 
 ```js
-var url = { protocol: 'http'
-          , domain: xkcd.com
-          , path: /5/
-          , query: ''
-          }
+arbList(arbList(arbList(arbWhole)))(7)
 
-function arbUrl(size) {
-  return { protocol: arbProtocol      // such custom
-         , domain:   arbDomain(size)  // many param
-         , path:     arbPath(size)    // much size
-         , query:    arbQuery(size)   // wow
-         };
-}
+[ [ [],
+    [ 0, 1, 5, 0, 1, 2 ],
+    [ 1, 4, 0, 3 ],
+    [],
+    [ 6, 2, 4, 5, 4, 4 ] ],
+  [ [ 2, 5, 1 ], [], [] ],
+  [ [ 4, 0, 6, 1 ], [ 5, 6, 6, 1 ] ],
+  [ [ 3, 4, 4, 6, 6 ], [ 0, 0, 2, 4 ], [ 4, 4, 1, 4, 1 ] ],
+  [ [],
+    [ 0, 2, 4, 4, 6, 5 ],
+    [ 5, 2, 1, 3, 1 ],
+    [ 0, 4, 0, 6, 4, 6 ] ] ]
 ```
 
 ---
 
-# 3<br>shrinking
+# 3<br>learn from failures
 
 ---
 
-# shrinking
+# learn from failures
 
 ```js
+oops, found a counter example:  [ -1, [ 0, 0 ] ] function (n, list) {
+    return concatN(n, list).length ===
+      n * list.length;
+  }
 
+oops, found a counter example:  [ 0, [ 0 ], 0 ] function (n, list, m) {
+    return concatN(n, list)[m % list.length] ===
+                       list[m % list.length];
+  }
+
+// and after rerunning:
+oops, found a counter example:  [ -1, [ 0 ], -1 ] function (n, list, m) {
+    return concatN(n, list)[m % list.length] ===
+                       list[m % list.length];
+  }
 ```
 
 ---
 
-# 4<br>cool stuff you can do
+# learn from failures
+
+````
+failures for:
+
+n ==  0
+n == -1
+
+m ==  0
+m == -1
+````
 
 ---
 
-# cool stuff you can do
+# learn from failures
+
+````
+failures for:
+
+n ==  0  |
+n == -1  |  our length property is just wrong
+
+m ==  0  |  with n=0: item at any index is undefined
+m == -1  |  item at negative index is undefined
+````
+
+---
+
+# learn from failures
+
+```js
+forAll([arbInt, arbArray(arbInt)],
+  function (n, list) {
+    return concatN(n, list).length ===
+      n * list.length;
+  });
+
+forAll([arbInt, arbArray(arbInt), arbInt],
+  function (n, list, m) {
+    return concatN(n, list)[m % list.length] ===
+                       list[m % list.length];
+  });
+```
+
+---
+
+# learn from failures
+
+```js
+forAll([arbInt, arbArray(arbInt)],
+  function (n, list) {
+    return concatN(n, list).length ===
+      (n < 0 ? 0 : n * list.length);
+  });
+
+forAll([arbInt, arbArray(arbInt), arbWhole],
+  function (n, list, m) {
+    return n < 1 || concatN(n, list)[m % list.length] ===
+                                list[m % list.length];
+  });
+```
+
+---
+
+# learn from failures
+
+```js
+ran 100 tests successfully:  function (n, list) {
+    return concatN(n, list).length ===
+      (n < 0 ? 0 : n * list.length);
+  }
+
+ran 100 tests successfully:  function (n, list, m) {
+    return n < 1 || concatN(n, list)[m % list.length] ===
+                                list[m % list.length];
+  }
+```
+
+---
+
+# yay  \o/
+
+---
+
+# 4 | cool stuff you can do
 
 * random user actions
 * idempotence
@@ -591,10 +796,28 @@ function arbUrl(size) {
 
 ---
 
-# trade-offs
+# 5 | suitability
 
-* investing in generators vs.
-*
+* generators pay off for big, common domains
+* more dimensions —> more code saved
+* too abstract and loose for TDD
+* good for regression testing
+
+---
+
+# but in any case
+# test *properties*<br>not values
+
+---
+
+# or at least
+# test *properties*,<br>in addition to values
+
+---
+
+# thanks.
+
+# @fronx
 
 ---
 
@@ -602,57 +825,17 @@ function arbUrl(size) {
 
 ---
 
-# limits of classical unit testing
-
-* can be interpreted as **partial** specifications
-* it may be hard to infer what the property is from the example --> i should have an example for that
-* abstraction to the rescue!
-* remove what's not essential
-* analogous to defining functions
-
----
-
-# basics of random testing
-
-* symmetries: stored value == retrieved value
-* idempotence: normalizing a value twice should not change the result
-* something with recursive functions?
-*
-
----
-
-writing generators takes time and effort
-but it's a good investment!
-you can use them in other tests
-
----
-
-# what's "wrong" with example-based unit testing?
-
-* unchecked assumption that examples are representative
+# appendix
 
 ---
 
 # comparing two implementations
-
-forall inputs. oldFn == newFn
 
 ````
 forAll(arbInput, function (in) {
   return oldFn(in) == newFn(in);
 }
 ````
----
-
-# conclusion
-
-* is it worth it?
-  study from 2002: bugs add 30% to the cost of software
-*
-
----
-
-# appendix
 
 ---
 
@@ -674,6 +857,25 @@ forAll(arbInput, function (in) {
 - **qc**
   it's pretty good, actually
 
+---
+
+# generators
+
+```js
+var url = { protocol: 'http'
+          , domain: xkcd.com
+          , path: /5/
+          , query: ''
+          }
+
+function arbUrl(size) {
+  return { protocol: arbProtocol      // such custom
+         , domain:   arbDomain(size)  // many param
+         , path:     arbPath(size)    // much size
+         , query:    arbQuery(size)   // wow
+         };
+}
+```
 ---
 
 #
