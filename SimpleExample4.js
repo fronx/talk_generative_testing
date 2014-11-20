@@ -64,6 +64,6 @@ forAll([arbInt, arbArray(arbInt)],
 
 forAll([arbInt, arbArray(arbInt), arbWhole],
   function (n, list, m) {
-    return n < 1 || concatN(n, list)[m % list.length] ===
+    return n < 1 || concatN(n, list)[m % concatN(n, list).length] ===
                                 list[m % list.length];
   });

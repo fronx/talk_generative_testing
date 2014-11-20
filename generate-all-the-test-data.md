@@ -161,7 +161,7 @@ assert(concatN(1, someList).length ===
 // items appear in their original order
 // or: every nth item is the same in input/output
 
-  assert(concatN(1, list)[someIndex % list.length] ===
+  assert(concatN(1, list)[someIndex % concatN(1, list).length] ===
                      list[someIndex % list.length]);
 ```
 
@@ -173,7 +173,7 @@ assert(concatN(1, someList).length ===
 // items appear in their original order
 // or: every nth item is the same in input/output
 exampleIndexes.forEach(function(someIndex) {
-  assert(concatN(1, list)[someIndex % list.length] ===
+  assert(concatN(1, list)[someIndex % concatN(1, list).length] ===
                      list[someIndex % list.length]);
 });
 ```
@@ -224,10 +224,10 @@ assert(concatN(2, list).length ===
 // items appear in their original order
 var list = ...;
 // for (var m...)
-assert(concatN(1, list)[m % list.length] ===
+assert(concatN(1, list)[m % concatN(1, list).length] ===
                    list[m % list.length]);
 // for (var m...)
-assert(concatN(2, list)[m % list.length] ===
+assert(concatN(2, list)[m % concatN(2, list).length] ===
                    list[m % list.length]);
 
 ```
@@ -251,7 +251,7 @@ assert(concatN(2, list)[m % list.length] ===
 
 
  
-  assert(concatN(n, list)[m % list.length] ===
+  assert(concatN(n, list)[m % concatN(n, list).length] ===
                      list[m % list.length]);
 
 
@@ -268,7 +268,7 @@ function (list, n) {
 }
 
 function(list, n, m) {
-  assert(concatN(n, list)[m % list.length] ===
+  assert(concatN(n, list)[m % concatN(n, list).length] ===
                      list[m % list.length]);
 }
 
@@ -293,7 +293,7 @@ function (list, n) {
 }
 
 function(list, n, m) {
-  assert(concatN(n, list)[m % list.length] ===
+  assert(concatN(n, list)[m % concatN(n, list).length] ===
                      list[m % list.length]);
 }
 
@@ -310,7 +310,7 @@ forAll(arbList, arbInt, function(list, n) {
 });
 
 forAll(arbList, arbInt, arbInt, function(list, n, m) {
-  return concatN(n, list)[m % list.length] ===
+  return concatN(n, list)[m % concatN(n, list).length] ===
                      list[m % list.length];
 });
 
@@ -499,9 +499,9 @@ function arbList (size) {
 
 ```js
 function arbList (size) {
-  var i, list = [],
+  var list = [],
       listSize = arbWhole(size);
-  for (i = 0; i < listSize; i += 1) {
+  for (var i=0; i<listSize; i++) {
     list.push(arbInt(size));
   }
   return list;
@@ -516,9 +516,9 @@ function arbList (size) {
 
 ```js
 function arbList (itemGen, size) {
-  var i, list = [],
+  var list = [],
       listSize = arbWhole(size);
-  for (i = 0; i < listSize; i += 1) {
+  for (var i=0; i<listSize; i++) {
     list.push(itemGen(size));
   }
   return list;
@@ -584,10 +584,6 @@ arbList(arbList(arbList(arbStr)))
 
 ---
 
-# we need some<br>*CUR*(*RY*)(*ING*).
-
----
-
 # we
 
 ---
@@ -612,10 +608,6 @@ arbList(arbList(arbList(arbStr)))
 
 ---
 
-# we need some<br>*CUR*(*RY*)(*ING*).
-
----
-
 # ok
 
 ---
@@ -626,9 +618,9 @@ arbList(arbList(arbList(arbStr)))
 // arbList :: ((Int -> a), Int) -> [a]
 function arbList (itemGen, size) {
 
-    var i, list = [],
+    var list = [],
         listSize = arbWhole(size);
-    for (i = 0; i < listSize; i += 1) {
+    for (var i=0; i<listSize; i++) {
       list.push(itemGen(size));
     }
     return list;
@@ -644,9 +636,9 @@ function arbList (itemGen, size) {
 // arbList :: (Int -> a) -> (Int -> [a])
 function arbList (itemGen) {
   return function gen(size) {
-    var i, list = [],
+    var list = [],
         listSize = arbWhole(size);
-    for (i = 0; i < listSize; i += 1) {
+    for (var i=0; i<listSize; i++) {
       list.push(itemGen(size));
     }
     return list;
@@ -690,13 +682,13 @@ oops, found a counter example:  [ -1, [ 0, 0 ] ] function (n, list) {
   }
 
 oops, found a counter example:  [ 0, [ 0 ], 0 ] function (n, list, m) {
-    return concatN(n, list)[m % list.length] ===
+    return concatN(n, list)[m % concatN(n, list).length] ===
                        list[m % list.length];
   }
 
 // and after rerunning:
 oops, found a counter example:  [ -1, [ 0 ], -1 ] function (n, list, m) {
-    return concatN(n, list)[m % list.length] ===
+    return concatN(n, list)[m % concatN(n, list).length] ===
                        list[m % list.length];
   }
 ```
@@ -742,7 +734,7 @@ forAll([arbInt, arbArray(arbInt)],
 
 forAll([arbInt, arbArray(arbInt), arbInt],
   function (n, list, m) {
-    return concatN(n, list)[m % list.length] ===
+    return concatN(n, list)[m % concatN(n, list).length] ===
                        list[m % list.length];
   });
 ```
@@ -760,8 +752,9 @@ forAll([arbInt, arbArray(arbInt)],
 
 forAll([arbInt, arbArray(arbInt), arbWhole],
   function (n, list, m) {
-    return n < 1 || concatN(n, list)[m % list.length] ===
-                                list[m % list.length];
+    return n < 1 ||
+           concatN(n, list)[m % concatN(n, list).length] ===
+                       list[m % list.length];
   });
 ```
 
@@ -776,8 +769,9 @@ ran 100 tests successfully:  function (n, list) {
   }
 
 ran 100 tests successfully:  function (n, list, m) {
-    return n < 1 || concatN(n, list)[m % list.length] ===
-                                list[m % list.length];
+    return n < 1 ||
+           concatN(n, list)[m % concatN(n, list).length] ===
+                       list[m % list.length];
   }
 ```
 
@@ -791,7 +785,7 @@ ran 100 tests successfully:  function (n, list, m) {
 
 * random user actions
 * idempotence
-* symmetry
+* inverses
 * compare implementations
 
 ---
