@@ -1,8 +1,12 @@
-# GENERATE ALL THE <br>TEST DATA !
+# hi, i'm *fronx*.<br>and also @fronx.
 
 ---
 
-# hi, i'm fronx.<br>and also @fronx.
+# *reminder to<br>start the<br>stop watch*
+
+---
+
+# GENERATE ALL THE <br>TEST DATA !
 
 ---
 
@@ -28,6 +32,14 @@
 ---
 
 # write *less test code*
+
+---
+
+# Berlin.JS
+
+---
+
+# *let's reinvent*<br>(the basics of)<br>*generative testing*
 
 ---
 
@@ -57,11 +69,8 @@ function concatN(n, list) { … }
 # expected == actual
 
 ```js
-// concatenate a list to itself n times
+// concatenate a list to itself n-1 times
 function concatN(n, list) { … }
-
-assertEqual(concatN(1, [1,2,3]),
-            [1,2,3]);
 ```
 
 ---
@@ -69,7 +78,18 @@ assertEqual(concatN(1, [1,2,3]),
 # expected == actual
 
 ```js
-// concatenate a list to itself n times
+// concatenate a list to itself n-1 times
+function concatN(n, list) { … }
+
+assertEqual(concatN(1, [1,2,3]),
+            [1,2,3]);
+```
+---
+
+# expected == actual
+
+```js
+// concatenate a list to itself n-1 times
 function concatN(n, list) { … }
 
 assertEqual(concatN(1, [1,2,3]),
@@ -84,7 +104,24 @@ assertEqual(concatN(2, [1,2,3]),
 # expected == actual
 
 ```js
-// concatenate a list to itself n times
+// concatenate a list to itself n-1 times
+function concatN(n, list) { … }
+
+assertEqual(concatN(1, [1,2,3]),
+            [1,2,3]);
+
+assertEqual(concatN(2, [1,2,3]),
+            [1,2,3,1,2,3]);
+
+// what is essential?
+```
+
+---
+
+# expected == actual
+
+```js
+// concatenate a list to itself n-1 times
 function concatN(n, list) { … }
 
 assertEqual(concatN(1, [1,2,3]),
@@ -103,12 +140,12 @@ assertEqual(concatN(2, [1,2,3]),
  
  
 assertEqual(concatN(1, [1,2,3]),
-            [1,2,3]);       // why is that correct?
+            [1,2,3]);       // explain why it's correct!
 ```
 
 ---
 
-# properties
+# properties!
 
 ```js
 // output length == n times input length
@@ -120,7 +157,7 @@ assertEqual(concatN(1, [1,2,3]),
 
 ---
 
-# properties
+# properties!
 
 ```js
 // output length == n times input length
@@ -131,15 +168,16 @@ assert(concatN(1, someList).length ===
 
 ---
 
-# properties
+# properties!
 
 ```js
 // items appear in their original order
+// how can we express that as a property?
 ```
 
 ---
 
-# properties
+# properties!
 
 ```js
 // items appear in their original order
@@ -155,7 +193,7 @@ assert(concatN(1, someList).length ===
 
 ---
 
-# properties
+# properties!
 
 ```js
 // items appear in their original order
@@ -167,7 +205,7 @@ assert(concatN(1, someList).length ===
 
 ---
 
-# properties
+# properties!
 
 ```js
 // items appear in their original order
@@ -180,18 +218,18 @@ exampleIndexes.forEach(function(someIndex) {
 
 ---
 
-# properties
+# properties!
 
 ```js
  
  
  
 assertEqual(concatN(2, [1,2,3]),
-            [1,2,3,1,2,3]); // why is that correct?
+            [1,2,3,1,2,3]); // explain why it's correct!
 ```
 ---
 
-# properties
+# properties!
 
 ```js
 // output length == n times input length
@@ -203,7 +241,7 @@ assertEqual(concatN(2, [1,2,3]),
 
 ---
 
-# properties
+# properties!
 
 ```js
 // output length == n times input length
@@ -218,7 +256,7 @@ assert(concatN(2, list).length ===
 
 ---
 
-# properties
+# properties!
 
 ```js
 // items appear in their original order
@@ -240,6 +278,39 @@ assert(concatN(2, list)[m % concatN(2, list).length] ===
 
 # this calls for<br>*abstraction*
 
+---
+
+# (interlude)
+
+---
+
+
+# *THE GOSPEL OF<BR>ABSTRACTION*
+
+---
+
+# "abstraction means making something more widely applicable by *removing knowledge* from it"
+
+---
+
+# (end of interlude)
+
+---
+
+# abstraction
+
+```js
+ 
+  assert(concatN(1, list).length ===
+         1 * list.length);
+
+
+ 
+  assert(concatN(1, list)[m % concatN(1, list).length] ===
+                     list[m % list.length]);
+
+
+```
 ---
 
 # abstraction
@@ -495,7 +566,7 @@ function arbList (size) {
 
 # generators
 
-* `arbList`
+* `arbList: why would it use arbInt?`
 
 ```js
 function arbList (size) {
@@ -800,7 +871,7 @@ ran 100 tests successfully:  function (n, list, m) {
 ---
 
 # but in any case
-# test *properties*<br>not values
+# test *properties*,<br>not values
 
 ---
 
@@ -809,9 +880,17 @@ ran 100 tests successfully:  function (n, list, m) {
 
 ---
 
+# and maybe,<br>*maybe*<br>you want to write a<br>good library for all this
+
+---
+
 # thanks.
 
 # @fronx
+
+---
+
+# you should watch *@jessitron*'s talks
 
 ---
 
